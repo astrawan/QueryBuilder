@@ -58,7 +58,11 @@ public class SqlInjectionAttackFilter implements IRuleFilter {
         } else if (EnumDBType.ORACLE.equals(dbType)) {
             this.beginningDelimiter = '"';
             this.endingDelimiter = '"';
-            file = "keywords-oracle.txt";
+			file = "keywords-oracle.txt";
+        } else if (EnumDBType.POSTGRE_SQL.equals(dbType)) {
+            this.beginningDelimiter = '"';
+            this.endingDelimiter = '"';
+            file = "keywords-postgresql.txt";
         } else if (EnumDBType.MS_SQL.equals(dbType)) {
             this.beginningDelimiter = '[';
             this.endingDelimiter = ']';
@@ -86,10 +90,11 @@ public class SqlInjectionAttackFilter implements IRuleFilter {
         if (!jsonRule.isGroup()) {
             IRule rule = jsonRule.toRule();
             String field = rule.getField();
-            if ((EnumDBType.MYSQL.equals(this.dbType) && field.length() > 64) || 
+			if ((EnumDBType.MYSQL.equals(this.dbType) && field.length() > 64) || 
+				(EnumDBType.POSTGRE_SQL.equals(this.dbType) && field.length() > 64) ||
                 (EnumDBType.ORACLE.equals(this.dbType) && field.length() > 30) || 
                 (EnumDBType.MS_SQL.equals(this.dbType) && field.length() > 128)) {
-                // field too long, MYSQL's max length is 64, ORACLE's max length is 30 and MS_SQL's max length is 128
+                // field too long, MYSQL and POSTGRESQL max length is 64, ORACLE's max length is 30 and MS_SQL's max length is 128
                 throw new FilterException("rule's field is too long for:" + jsonRule);
             }
             if (!Pattern.matches("^[A-Za-z0-9_]+$", field)) {
